@@ -1,10 +1,10 @@
 {
   "name": "http-swissknife",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "My HTTP testing tools",
   "bin": {
-    "httptest": "httptest.js",
-    "httptest_list": "httptest_list.js"
+    "httptest": "bin/httptest.js",
+    "httptest_list": "bin/httptest_list.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
