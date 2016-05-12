@@ -116,6 +116,11 @@ if ( !url || !url.match(/^https?:\/\//) ) {
 	return process.exit(0);
 }
 
+for ( var opt in opts ) {
+        if ( !opt.match(/^(concurrents|limit|wait|#\d+)$/) )
+                throw new Error("Unknown option '"+opt+"'");
+}
+
 
 if ( opts['limit'] ) {
 	// stupid code alert
@@ -124,9 +129,17 @@ if ( opts['limit'] ) {
 		urls.push(url);
 }
 
-if ( !opts['concurrents'] )
-	opts['concurrents']= '1';
-opts['concurrents'] = parseInt(opts['concurrents']);
+// Defaults
+if ( !opts.concurrents )
+	opts.concurrents = '1';
+
+// Format arguments
+if ( opts.concurrents )
+        opts.concurrents = parseInt(opts.concurrents);
+if ( opts.limit )
+        opts.limit = parseInt(opts.limit);
+if ( opts.wait )
+        opts.wait = parseInt(opts.wait);
 
 
 console.log("Starting...");
@@ -143,7 +156,14 @@ async.mapLimit(urls,opts.concurrents,
                                 errMsg          = err ? ("\""+err.toString()+"\"") : '-';
 
                         console.log(statusCode+"\t"+spent+"\t"+size+"\t"+url+"\t"+errMsg);
-                        return next(null,statusCode);
+			_if(opts['wait'],
+				function(nextReq){
+					setTimeout(nextReq,opts['wait']);
+				},
+				function(){
+		                        return next(null,statusCode);					
+				}
+			);
                 });
         },
         function(err,res){

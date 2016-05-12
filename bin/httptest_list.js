@@ -111,8 +111,8 @@ var
 	opts = parse_opts(process.argv),
 	file  = opts['#0'];
 
-for ( var opt in opts.concurrents ) {
-	if ( !opt.match(/^(concurrents|limit|\d+)$/) )
+for ( var opt in opts ) {
+	if ( !opt.match(/^(concurrents|limit|wait|#\d+)$/) )
 		throw new Error("Unknown option '"+opt+"'");
 }
 
@@ -125,14 +125,21 @@ if ( !file ) {
 	return process.exit(0);
 }
 
+// Format arguments
+if ( opts.concurrents )
+	opts.concurrents = parseInt(opts.concurrents);
+if ( opts.limit )
+	opts.limit = parseInt(opts.limit);
+if ( opts.wait )
+        opts.wait = parseInt(opts.wait);
+
+
 // Read the file
 urls = fs.readFileSync(file).toString().split("\n").filter(function(url){return url.match(/^https?:\/\//)});
 
 // Splice the list
-if ( opts.limit ) {
-	opts.limit = parseInt(opts.limit);
+if ( opts.limit )
 	urls = urls.splice(0,opts.limit);
-}
 
 
 // Run the test
@@ -151,7 +158,14 @@ async.mapLimit(urls,opts.concurrents,
 				errMsg		= err ? ("\""+err.toString()+"\"") : '-';
 
 			console.log(statusCode+"\t"+spent+"\t"+size+"\t"+url+"\t"+errMsg);
-			return next(null,statusCode);
+                        return _if(opts['wait'],
+                                function(nextReq){
+                                        setTimeout(nextReq,opts['wait']);
+                                },
+                                function(){
+                                        return next(null,statusCode);
+                                }
+                        );
 		});
 	},
 	function(err,res){
