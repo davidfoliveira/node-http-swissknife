@@ -1,0 +1,30 @@
+{
+  "name": "http-swissknife",
+  "version": "1.0.0",
+  "description": "My HTTP testing tools",
+  "bin": {
+    "httptest": "httptest.js",
+    "httptest_list": "httptest_list.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "async": ">=0.9.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidfoliveira/node-http-swissknife.git"
+  },
+  "keywords": [
+    "http",
+    "test",
+    "tools"
+  ],
+  "author": "David Oliveira",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/davidfoliveira/node-http-swissknife/issues"
+  },
+  "homepage": "https://github.com/davidfoliveira/node-http-swissknife#readme"
+}
