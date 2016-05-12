@@ -71,16 +71,6 @@ var request = function(url,opts,handler) {
 	// GET
 	httpMod = url.match(/^https:/) ? https : http;
 	var req = httpMod.get(reqURL,function(res){
-//		if ( res.statusCode > 400 )
-//			return _handler(null,null,res);
-		if ( res.statusCode >= 300 && res.statusCode < 400 ) {
-			if ( res.headers['location'] != null && res.headers['location'].toString().replace(/^[\s\r\n]*|[\s\r\n]*$/g,"") && opts.followRedirects ) {
-				opts.followRedirects--;
-				res.headers['location'] = require('url').resolve(reqURL,res.headers['location'].toString());
-				return exports._get(res.headers['location'],_handler);
-			}
-			return _handler(new Error("Found redirect without Location header"),null,res);
-		}
 
 		// Watch content encoding
 		if ( res.headers['content-encoding'] ) {
