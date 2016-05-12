@@ -1,6 +1,6 @@
 {
   "name": "http-swissknife",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "My HTTP testing tools",
   "bin": {
     "httptest": "bin/httptest.js",
