@@ -3,143 +3,105 @@
 "use strict";
 
 var
-	http       = require('http'),
-	https      = require('https'),
-	zlib       = require('zlib'),
-	async      = require('async');
+    fs          = require('fs'),
+    async       = require('async'),
+    readline    = require('readline'),
+	opts        = require('../lib/opts'),
+	httpc       = require('../lib/httpc'),
 
+	defaultOpts = {
+            mode:        'url',
+            limit:       null,
+            concurrents: 1,
+            wait:        0
+        };
 
-// Parse command-line options - old school way (don't want to import more libraries)
-var parse_opts = function(args) {
-
-        var
-                opts = {},
-                ptr  = 0;
-
-        // Starting from the third argument
-        for ( var x = 2 ; x < args.length ; x++ ) {
-                if ( args[x] == null )
-                        continue;
-                if ( args[x].match(/^\-\-(\w+)=(\w+)$/) )
-                        opts[RegExp.$1] = RegExp.$2;
-                else
-                        opts['#'+(ptr++)] = args[x];
-        }
-
-        return opts;
-
-};
-
-// Just get
-var request = function(url,opts,handler) {
-
-	var
-		args = Array.prototype.slice.call(arguments, 0),
-		httpMod,
-		zipDecoder,
-		content = "",
-		start = new Date(),
-		timeout = null,
-		reqURL;
-
-	url = args.shift()    || null;
-	handler = args.pop()  || null;
-	opts = args.shift()   || { followRedirects: 3, charsetEncoding: "utf-8" };
-	if ( !url )
-		throw new Error("No URL to GET");
-	if ( !handler )
-		throw new Error("No callback");
-	reqURL = require('url').parse(url);
-	if ( opts.headers )
-		reqURL.headers = opts.headers;
-
-	// Create a pseudo callback which destroys herself after being used
-	var _handler = function(err,data,res){
-		_handler = function(){};
-		if ( timeout )
-			clearTimeout(timeout);
-		handler(err,data,res);
-	};
-
-	// Timeout ? Start counting..
-	if ( opts.timeout ) {
-		timeout = setTimeout(function(){
-			_handler(new Error("HTTP request timeout after "+opts.timeout+" ms"),null,null);
-		},opts.timeout);
-	}
-
-	// GET
-	httpMod = url.match(/^https:/) ? https : http;
-	var req = httpMod.get(reqURL,function(res){
-
-		// Watch content encoding
-		if ( res.headers['content-encoding'] ) {
-			var enc = res.headers['content-encoding'].toString().toLowerCase().replace(/^\s*|\s*$/g,"");
-			if ( enc == "gzip" )
-				zipDecoder = zlib.createGunzip();
-			else if ( enc == "deflate" )
-				zipDecoder = zlib.createInflate();
-			else
-				return _handler(new Error("Unsupported document encoding '"+enc+"'"),null);
-			res.pipe(zipDecoder);
-		}
-
-		// GET data
-		(zipDecoder || res).setEncoding(opts.charsetEncoding || "utf-8");
-		(zipDecoder || res).on('data',function(d){ content += d.toString(); });
-		(zipDecoder || res).on('end',function(){
-			if ( opts.debug )
-				console.log("HTTP GET: took "+(new Date()-start)+" ms");
-			return _handler(null,content,res);
-		});
-	})
-	.on('error',function(err){
-		return _handler(err,null,null);
-	});
-
-};
 
 function _if(cond,a,b){
 	return cond ? a(b) : b();
 }
 
 
-// Parse the query string arguments
+
+
+// Parse the command-line arguments
 var
-	opts = parse_opts(process.argv),
-	url  = opts['#0'],
-	urls = [url],
-	start;
+    mode = defaultOpts['mode'],
+    OPTS = opts.parseOpts(process.argv,{m: 'mode', l: 'limit', c: 'concurrents', w: 'wait'}),
+    validOpts = false;
 
-if ( !url || !url.match(/^https?:\/\//) ) {
-	console.log("Syntax error: nodeurl.js URL");
-	return process.exit(0);
+// Mode defaults to url
+if ( OPTS.mode ) {
+    mode = OPTS.mode;
+    delete OPTS.mode;
 }
 
-for ( var opt in opts ) {
-        if ( !opt.match(/^(concurrents|limit|wait|#\d+)$/) )
-                throw new Error("Unknown option '"+opt+"'");
+// Validate the options according to the choosen mode
+if ( mode == 'url' ) {
+    validOpts = opts.validateOpts(OPTS,['limit','concurrents','wait'],1,defaultOpts);
+}
+else if ( mode == 'file' ) {
+    validOpts = opts.validateOpts(OPTS,['limit','concurrents','wait'],1,defaultOpts);
+}
+else if ( mode == 'stdin' ) {
+    validOpts = opts.validateOpts(OPTS,['limit','concurrents','wait'],0,defaultOpts);
+}
+
+// Syntax error
+if ( !validSyntax ) {
+    console.log("Syntax error: nodeurl.js URL");
+    return process.exit(0);
 }
 
 
-if ( opts['limit'] ) {
-	// stupid code alert
-	urls = [];
-	for ( var x = 0 ; x < parseInt(opts['limit']) ; x++ )
-		urls.push(url);
+
+// Run!
+
+// URL mode
+if ( mode == 'url' ) {
+
+    var
+        url  = opts['#0'],
+        start;
+
+    // Check if the URL is valid
+    if ( !url || !url.match(/^https?:\/\//) )
+        throw new Error("Invalid URL: "+url);
+
 }
+else if ( mode == 'file' || mode == 'stdin' ) {
 
-// Defaults
-if ( !opts.concurrents )
-	opts.concurrents = '1';
+    var
+        stream   = null,
+        start;
 
-// Format arguments
-if ( opts.concurrents )
-        opts.concurrents = parseInt(opts.concurrents);
-if ( opts.limit )
-        opts.limit = parseInt(opts.limit);
-if ( opts.wait )
-        opts.wait = parseInt(opts.wait);
+    if ( mode == 'file' ) {
+        var
+            file = opts['#0'];
+
+        if ( !file )
+            throw new Error("File not specified");
+
+        // Open the file (or fail)
+        stream = fs.createReadStream(file,"r");
+    }
+    else
+        fd = process.stdin;
+
+    // 
+
+    // Read the file in lines
+    var rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: false
+    });
+
+    rl.on('line', function(line){
+        console.log(line);
+    })
+
+}
 
 
 console.log("Starting...");
