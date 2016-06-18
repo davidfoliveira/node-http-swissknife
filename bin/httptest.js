@@ -4,10 +4,10 @@
 
 var
     modes       = require('../lib/modes'),
-	opts        = require('../lib/opts'),
-	httpc       = require('../lib/httpc'),
+    opts        = require('../lib/opts'),
+    httpc       = require('../lib/httpc'),
 
-	defaultOpts = {
+    defaultOpts = {
         mode:               'url',
         limit:              null,
         concurrents:        1,
