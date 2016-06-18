@@ -8,10 +8,11 @@ var
 	httpc       = require('../lib/httpc'),
 
 	defaultOpts = {
-        mode:        'url',
-        limit:       null,
-        concurrents: 1,
-        wait:        0
+        mode:               'url',
+        limit:              null,
+        concurrents:        1,
+        wait:               0,
+        'no-stream-pause':  false
     };
 
 
