@@ -3,8 +3,8 @@
   "version": "1.0.4",
   "description": "My HTTP testing tools",
   "bin": {
-    "httptest": "bin/httptest.js",
-    "httptest_list": "bin/httptest_list.js"
+    "httpsn":   "bin/httptest.js",
+    "httptest": "bin/httptest.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
