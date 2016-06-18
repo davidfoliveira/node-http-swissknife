@@ -29,25 +29,16 @@ if ( OPTS.mode ) {
 }
 
 // Validate the options according to the choosen mode
-if ( mode == 'url' ) {
+if ( mode == 'url' || mode == 'file' ) {
     validOpts = opts.validateOpts(OPTS,['limit','concurrents','wait'],1,defaultOpts);
-}
-else if ( mode == 'file' ) {
-    validOpts = opts.validateOpts(OPTS,['limit','concurrents','wait'],1,defaultOpts);
-}
-else if ( mode == 'stdin' ) {
-    validOpts = opts.validateOpts(OPTS,['limit','concurrents','wait'],0,defaultOpts);
 }
 
 // Syntax error
 if ( !validOpts ) {
-    console.log("Syntax error: nodeurl.js [-m mode] [-l limit] [-c concurrents] [-w wait_time] URL|FILE");
+    console.log("Syntax error: nodeurl.js [-m mode] [-l limit] [-c concurrents] [-w wait_time] [-P] URL|FILE");
     return process.exit(0);
 }
 
-
-// Setup our environment
-//  (number of concurrent requests)
 
 // Run!
 modes[mode](OPTS);
