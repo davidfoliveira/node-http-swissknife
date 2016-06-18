@@ -3,24 +3,16 @@
 "use strict";
 
 var
-    fs          = require('fs'),
-    async       = require('async'),
-    readline    = require('readline'),
+    modes       = require('../lib/modes'),
 	opts        = require('../lib/opts'),
 	httpc       = require('../lib/httpc'),
 
 	defaultOpts = {
-            mode:        'url',
-            limit:       null,
-            concurrents: 1,
-            wait:        0
-        };
-
-
-function _if(cond,a,b){
-	return cond ? a(b) : b();
-}
-
+        mode:        'url',
+        limit:       null,
+        concurrents: 1,
+        wait:        0
+    };
 
 
 
@@ -48,62 +40,19 @@ else if ( mode == 'stdin' ) {
 }
 
 // Syntax error
-if ( !validSyntax ) {
-    console.log("Syntax error: nodeurl.js URL");
+if ( !validOpts ) {
+    console.log("Syntax error: nodeurl.js [-m mode] [-l limit] [-c concurrents] [-w wait_time] URL|FILE");
     return process.exit(0);
 }
 
 
+// Setup our environment
+//  (number of concurrent requests)
 
 // Run!
+modes[mode](OPTS);
 
-// URL mode
-if ( mode == 'url' ) {
-
-    var
-        url  = opts['#0'],
-        start;
-
-    // Check if the URL is valid
-    if ( !url || !url.match(/^https?:\/\//) )
-        throw new Error("Invalid URL: "+url);
-
-}
-else if ( mode == 'file' || mode == 'stdin' ) {
-
-    var
-        stream   = null,
-        start;
-
-    if ( mode == 'file' ) {
-        var
-            file = opts['#0'];
-
-        if ( !file )
-            throw new Error("File not specified");
-
-        // Open the file (or fail)
-        stream = fs.createReadStream(file,"r");
-    }
-    else
-        fd = process.stdin;
-
-    // 
-
-    // Read the file in lines
-    var rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-      terminal: false
-    });
-
-    rl.on('line', function(line){
-        console.log(line);
-    })
-
-}
-
-
+/*
 console.log("Starting...");
 start = new Date();
 async.mapLimit(urls,opts.concurrents,
@@ -141,3 +90,4 @@ async.mapLimit(urls,opts.concurrents,
                 process.exit(0);
         }
 );
+*/
