@@ -1,3 +1,1 @@
-- Documentation
-- Test everything
-- Stream resume after pause
+- When the opts.limit is infinite, print the final report on ctrl+c

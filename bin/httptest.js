@@ -9,7 +9,7 @@ var
 
     defaultOpts = {
         mode:               'url',
-        limit:              null,
+        number:             1,
         concurrents:        1,
         wait:               0,
         'no-stream-pause':  false
@@ -20,7 +20,7 @@ var
 // Parse the command-line arguments
 var
     mode = defaultOpts['mode'],
-    OPTS = opts.parseOpts(process.argv,{m: 'mode', l: 'limit', c: 'concurrents', w: 'wait'}),
+    OPTS = opts.parseOpts(process.argv,{m: 'mode', l: 'number', c: 'concurrents', w: 'wait'}),
     validOpts = false;
 
 // Mode defaults to url
@@ -29,57 +29,21 @@ if ( OPTS.mode ) {
     delete OPTS.mode;
 }
 
-// Validate the options according to the choosen mode
-if ( mode == 'url' || mode == 'file' ) {
-    validOpts = opts.validateOpts(OPTS,['limit','concurrents','wait'],1,defaultOpts);
-}
+// Validate the options and assume the defaults for the choosen mode
+if ( mode === 'file' )
+    defaultOpts.number = Infinity;
+
+validOpts = opts.validateOpts(OPTS,['number','concurrents','wait'],1,defaultOpts);
 
 // Syntax error
 if ( !validOpts ) {
-    console.log("Syntax error: nodeurl.js [-m mode] [-l limit] [-c concurrents] [-w wait_time] [-P] URL|FILE");
+    console.log("Syntax error: nodeurl.js [-m mode] [-l number] [-c concurrents] [-w wait_time] [-P] URL|FILE");
     return process.exit(0);
 }
 
+// Setup the node.js environment to allow us to make as many concurrent requests as we need
+require('http').globalAgent.maxSockets  = OPTS.concurrents;
+require('https').globalAgent.maxSockets = OPTS.concurrents;
 
 // Run!
 modes[mode](OPTS);
-
-/*
-console.log("Starting...");
-start = new Date();
-async.mapLimit(urls,opts.concurrents,
-        function(url,next) {
-                // Get
-                var rStart = new Date();
-                request(url,{},function(err,data,res){
-                        var
-                                spent           = ((new Date())-rStart)/1000,
-                                size            = (data == null) ? '-' : new Buffer(data).length,
-                                statusCode      = err ? 'ERR' : res.statusCode,
-                                errMsg          = err ? ("\""+err.toString()+"\"") : '-';
-
-                        console.log(statusCode+"\t"+spent+"\t"+size+"\t"+url+"\t"+errMsg);
-			_if(opts['wait'],
-				function(nextReq){
-					setTimeout(nextReq,opts['wait']);
-				},
-				function(){
-		                        return next(null,statusCode);					
-				}
-			);
-                });
-        },
-        function(err,res){
-                var spent = (new Date()-start)/1000;
-                console.log("Performed:    "+res.length+" requests in "+spent+ " s");
-                var secPerReq = spent / res.length;
-                if ( secPerReq < 1 ) {
-                        var reqPerSec = res.length/spent;
-                        console.log("Reqs/second:  "+reqPerSec+(urls.length < opts.concurrents?" (estimate)":""));
-                }
-                else
-                        console.log("Seconds/req:  "+secPerReq);
-                process.exit(0);
-        }
-);
-*/
