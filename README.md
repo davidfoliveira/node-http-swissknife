@@ -4,16 +4,21 @@
 
 	npm install -f http-swissknife
 
+
 ## Run it
 
 Sends 100 requests to `http://www.google.is` with 10 concurrents
+
 	httpsn -n 100 -c 10 http://www.google.is/
 
 Sends 10 concurrent requests from a list of URLs on `list_of_urls.txt`
+
     httpsn -m file -c 10 list_of_urls.txt
 
 Receives a list or URLs on the standard input and requests them (no number of concurrent requests)
+
     cat some_list_of_urls.txt | httpsn -m file -w 1000 -
+
 
 ## Supported options
 
