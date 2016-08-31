@@ -37,7 +37,7 @@ validOpts = opts.validateOpts(OPTS,['number','concurrents','wait'],1,defaultOpts
 
 // Syntax error
 if ( !validOpts ) {
-    console.log("Syntax error: nodeurl.js [-m mode] [-l number] [-c concurrents] [-w wait_time] [-P] URL|FILE");
+    console.log("Syntax error: httpsn [-m mode] [-l number] [-c concurrents] [-w wait_time] [-P] URL|FILE");
     return process.exit(0);
 }
 
