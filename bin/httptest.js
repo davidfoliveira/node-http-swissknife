@@ -12,7 +12,8 @@ var
         number:             1,
         concurrents:        1,
         wait:               0,
-        'no-stream-pause':  false
+        'no-stream-pause':  false,
+        server:             null,
     };
 
 
@@ -20,7 +21,7 @@ var
 // Parse the command-line arguments
 var
     mode = defaultOpts['mode'],
-    OPTS = opts.parseOpts(process.argv,{m: 'mode', l: 'number', c: 'concurrents', w: 'wait'}),
+    OPTS = opts.parseOpts(process.argv,{m: 'mode', l: 'number', c: 'concurrents', w: 'wait', 's': 'server'}),
     validOpts = false;
 
 // Mode defaults to url
@@ -37,7 +38,7 @@ validOpts = opts.validateOpts(OPTS,['number','concurrents','wait'],1,defaultOpts
 
 // Syntax error
 if ( !validOpts ) {
-    console.log("Syntax error: httpsn [-m mode] [-l number] [-c concurrents] [-w wait_time] [-P] URL|FILE");
+    console.log("Syntax error: httpsn [-m mode] [-l number] [-c concurrents] [-w wait_time] [-P] [-F url|request] URL|FILE|REQUEST");
     return process.exit(0);
 }
 
