@@ -14,6 +14,7 @@ var
         wait:               0,
         'no-stream-pause':  false,
         server:             null,
+        download:           false
     };
 
 
@@ -21,7 +22,7 @@ var
 // Parse the command-line arguments
 var
     mode = defaultOpts['mode'],
-    OPTS = opts.parseOpts(process.argv,{m: 'mode', l: 'number', c: 'concurrents', w: 'wait', 's': 'server'}),
+    OPTS = opts.parseOpts(process.argv,{m: 'mode', l: 'number', c: 'concurrents', w: 'wait', 's': 'server', 'd': 'download'}),
     validOpts = false;
 
 // Mode defaults to url
@@ -34,7 +35,7 @@ if ( OPTS.mode ) {
 if ( mode === 'file' )
     defaultOpts.number = Infinity;
 
-validOpts = opts.validateOpts(OPTS,['number','concurrents','wait'],1,defaultOpts);
+validOpts = opts.validateOpts(OPTS, ['number','concurrents','wait'], 1, defaultOpts);
 
 // Syntax error
 if ( !validOpts ) {
