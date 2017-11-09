@@ -22,7 +22,7 @@ var
 // Parse the command-line arguments
 var
     mode = defaultOpts['mode'],
-    OPTS = opts.parseOpts(process.argv,{m: 'mode', l: 'number', c: 'concurrents', w: 'wait', 's': 'server', 'd': 'download'}),
+    OPTS = opts.parseOpts(process.argv,{m: 'mode', l: 'number', n: 'number', c: 'concurrents', w: 'wait', 's': 'server', 'd': 'download'}),
     validOpts = false;
 
 // Mode defaults to url
