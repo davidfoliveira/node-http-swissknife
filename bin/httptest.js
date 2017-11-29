@@ -14,7 +14,8 @@ var
         wait:               0,
         'no-stream-pause':  false,
         server:             null,
-        download:           false
+        download:           false,
+        header:             []
     };
 
 
