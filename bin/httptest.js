@@ -3,12 +3,13 @@
 "use strict";
 
 var
-    modes       = require('../lib/modes'),
-    opts        = require('../lib/opts'),
-    httpc       = require('../lib/httpc'),
+    opts              = require('../lib/opts'),
+    httpc             = require('../lib/httpc'),
+    { RequestSource } = require('../lib/request-source'),
+    { RequestStream } = require('../lib/request-stream'),
 
     defaultOpts = {
-        mode:               'url',
+        mode:               'template',
         number:             1,
         concurrents:        1,
         wait:               0,
@@ -18,19 +19,14 @@ var
         header:             []
     };
 
+console.debug = () => {};
 
 
 // Parse the command-line arguments
 var
     mode = defaultOpts['mode'],
-    OPTS = opts.parseOpts(process.argv,{m: 'mode', l: 'number', n: 'number', c: 'concurrents', w: 'wait', 's': 'server', 'd': 'download'}),
+    OPTS = opts.parseOpts(process.argv, { m: 'mode', l: 'number', n: 'number', c: 'concurrents', w: 'wait', 's': 'server' }),
     validOpts = false;
-
-// Mode defaults to url
-if ( OPTS.mode ) {
-    mode = OPTS.mode;
-    delete OPTS.mode;
-}
 
 // Validate the options and assume the defaults for the choosen mode
 if ( mode === 'file' )
@@ -40,7 +36,7 @@ validOpts = opts.validateOpts(OPTS, ['number','concurrents','wait'], 1, defaultO
 
 // Syntax error
 if ( !validOpts ) {
-    console.log("Syntax error: httpsn [-m mode] [-l number] [-c concurrents] [-w wait_time] [-P] [-F url|request] URL|FILE|REQUEST");
+    console.log("Syntax error: httpsn [-m mode] [-l number] [-c concurrents] [-w wait_time] [-P] [-F url|request] [-s server_url] URL|FILE|REQUEST");
     return process.exit(0);
 }
 
@@ -48,5 +44,8 @@ if ( !validOpts ) {
 require('http').globalAgent.maxSockets  = OPTS.concurrents;
 require('https').globalAgent.maxSockets = OPTS.concurrents;
 
-// Run!
-modes[mode](OPTS);
+// Create the request source and start it!
+const rsrc = new RequestSource(OPTS);
+const rstr = new RequestStream(OPTS);
+rstr.plug(rsrc);
+rstr.start();
